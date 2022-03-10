@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    // Redis::set('world', 'hello');
-    // return Redis::get('world');
-    return view('welcome');
-});
-
 // Menyimpan Dan Menampilkan Nilai Redis Di Laravel
+
+// Route::get('/', function () {
+//     // Redis::set('world', 'hello');
+//     // return Redis::get('world');
+//     return view('welcome');
+// });
 
 Route::get('/articles/{id}', function ($id) {
     $views = Redis::get("article.{$id}.views");
@@ -52,3 +52,26 @@ Route::get('/trending', function () {
 });
 
 // End Implementasi Sorted Sets Di Laravel
+
+// Menggunakan Tipe Hashes Di Laravel
+
+Route::get('/', function () {
+    $user1stat = [
+        'bookmark' => 10,
+        'watched' => 50,
+        'lessons' => 15
+    ];
+
+    Redis::hmset('user.1.stat', $user1stat);
+
+    return $user1stat;
+
+    // return view('welcome');
+});
+
+Route::get('/user/{id}/stat', function ($id) {
+    $user = Redis::hgetall("user.{$id}.stat");
+    return $user;
+});
+
+// End Menggunakan Tipe Hashes Di Laravel
