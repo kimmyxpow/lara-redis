@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Article;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 
@@ -14,64 +16,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Menyimpan Dan Menampilkan Nilai Redis Di Laravel
+// function remember($key, $second, $callback)
+// {
+//     if ($value = Redis::get($key)) {
+//         return json_decode($value);
+//     }
 
-// Route::get('/', function () {
-//     // Redis::set('world', 'hello');
-//     // return Redis::get('world');
-//     return view('welcome');
-// });
+//     $value = Article::all();
 
-Route::get('/articles/{id}', function ($id) {
-    $views = Redis::get("article.{$id}.views");
-    return "Article dengan id {$id} memiliki {$views} viewer";
-});
+//     Redis::setex($key, $second, $value = $callback());
 
-Route::get('/articles/{id}/visit', function ($id) {
-    Redis::incr("article.{$id}.views");
-    return redirect()->back();
-});
-
-// End Menyimpan Dan Menampilkan Nilai Redis Di Laravel
-
-// Implementasi Sorted Sets Di Laravel
-
-Route::get('/topic/{topic}', function ($topic) {
-    return $topic;
-});
-
-Route::get('/topic/{topic}/visit', function ($topic) {
-    Redis::zincrby('trending', 1, $topic);
-    Redis::zremrangebyrank('trending', 0, -4);
-    return redirect()->back();
-});
-
-Route::get('/trending', function () {
-    $trending = Redis::zrevrange('trending', 0, -1);
-    return $trending;
-});
-
-// End Implementasi Sorted Sets Di Laravel
-
-// Menggunakan Tipe Hashes Di Laravel
+//     return $value;
+// }
 
 Route::get('/', function () {
-    $user1stat = [
-        'bookmark' => 10,
-        'watched' => 50,
-        'lessons' => 15
-    ];
+    // return remember('article.all', 60 * 60, function () {
+    //     return Article::all();
+    // });
 
-    Redis::hmset('user.1.stat', $user1stat);
-
-    return $user1stat;
-
-    // return view('welcome');
+    return Cache::remember('article.all', 60 * 60, function () {
+        // dd('query');
+        return Article::all();
+    });
 });
-
-Route::get('/user/{id}/stat', function ($id) {
-    $user = Redis::hgetall("user.{$id}.stat");
-    return $user;
-});
-
-// End Menggunakan Tipe Hashes Di Laravel
