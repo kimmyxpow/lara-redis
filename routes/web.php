@@ -20,6 +20,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Menyimpan Dan Menampilkan Nilai Redis Di Laravel
+
 Route::get('/articles/{id}', function ($id) {
     $views = Redis::get("article.{$id}.views");
     return "Article dengan id {$id} memiliki {$views} viewer";
@@ -29,3 +31,24 @@ Route::get('/articles/{id}/visit', function ($id) {
     Redis::incr("article.{$id}.views");
     return redirect()->back();
 });
+
+// End Menyimpan Dan Menampilkan Nilai Redis Di Laravel
+
+// Implementasi Sorted Sets Di Laravel
+
+Route::get('/topic/{topic}', function ($topic) {
+    return $topic;
+});
+
+Route::get('/topic/{topic}/visit', function ($topic) {
+    Redis::zincrby('trending', 1, $topic);
+    Redis::zremrangebyrank('trending', 0, -4);
+    return redirect()->back();
+});
+
+Route::get('/trending', function () {
+    $trending = Redis::zrevrange('trending', 0, -1);
+    return $trending;
+});
+
+// End Implementasi Sorted Sets Di Laravel
